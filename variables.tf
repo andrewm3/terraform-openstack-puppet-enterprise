@@ -52,7 +52,30 @@ variable "pp_role" {
   default = "puppet::master_of_masters"
 }
 
+variable "node_type" {
+  default = "posix-agent"
+}
+
 variable "pe_source_url" {
   description = "Location of the Puppet Enterprise installer"
   default     = "https://pm.puppetlabs.com/cgi-bin/download.cgi?dist=el&rel=7&arch=x86_64&ver=latest"
+}
+
+variable "pe_conf" {
+  description = "The content of pe.conf"
+  default     = <<EOF
+{
+  "console_admin_password": "puppetlabs"
+  "puppet_enterprise::puppet_master_host": "%{::trusted.certname}"
+  "pe_install::puppet_master_dnsaltnames": ["puppet-master.openstack.vm"]
+
+  "puppet_enterprise::profile::master::check_for_updates": false
+  "puppet_enterprise::send_analytics_data": false
+}
+EOF
+}
+
+variable "custom_provisioner" {
+  description = "An array of provisioner commands to run in 'inline' style"
+  default     = []
 }
