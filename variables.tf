@@ -1,6 +1,6 @@
 variable "name" {
-  default     = "puppet-master"
   description = "The host name of the instance."
+  default     = "puppet-master"
 }
 
 variable "domain" {
@@ -79,3 +79,16 @@ variable "custom_provisioner" {
   description = "An array of provisioner commands to run in 'inline' style"
   default     = []
 }
+
+variable "master_ip" {
+  default = ""
+}
+
+variable "master_hostname" {
+  default = "puppet-master"
+}
+
+variable "dns_alt_names" {
+  default = "puppet-master.openstack.vm"
+}
+

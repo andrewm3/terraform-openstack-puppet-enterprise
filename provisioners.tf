@@ -1,5 +1,7 @@
 # Provisioners
 locals {
+  master_fqdn = "${var.master_hostname}.${var.domain}"
+
   pre_provisioner = [
     # Hostname and /etc/hosts
     "sudo hostname ${local.hostname}",
@@ -31,7 +33,15 @@ locals {
       "until sudo /opt/puppetlabs/bin/puppet agent -t; do sleep 1; done",
     ],
 
-    "posix-agent" = [],
+    "compile-master" = [
+      "echo '${var.master_ip} ${local.master_fqdn} ${var.master_hostname}' | sudo tee -a /etc/hosts",
+      "curl -k 'https://${local.master_fqdn}:8140/packages/current/install.bash' | sudo bash -s main:dns_alt_names=${var.dns_alt_names}",
+    ]
+
+    "posix-agent" = [
+      "echo '${var.master_ip} ${local.master_fqdn} ${var.master_hostname}' | sudo tee -a /etc/hosts",
+      "curl -k 'https://${local.master_fqdn}:8140/packages/current/install.bash' | sudo bash",
+    ],
   }
 
   node_provisioner = "${local.node_provisioners[var.node_type]}"
