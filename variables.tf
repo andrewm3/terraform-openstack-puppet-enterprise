@@ -53,7 +53,7 @@ variable "pp_role" {
 }
 
 variable "node_type" {
-  default = "posix-agent"
+  default = "puppet-master"
 }
 
 variable "pe_source_url" {
