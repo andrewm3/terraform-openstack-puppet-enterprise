@@ -2,20 +2,43 @@
 locals {
   master_fqdn = "${var.master_hostname}.${var.domain}"
 
-  pre_provisioner = [
-    # Hostname and /etc/hosts
-    "sudo hostname ${local.hostname}",
-    "echo $(curl -s http://169.254.169.254/latest/meta-data/local-ipv4) ${local.fqdn} ${local.hostname} | sudo tee -a /etc/hosts",
+  os_types = {
+    "puppet-master"  = "posix",
+    "puppet-compile" = "posix",
+    "posix-agent"    = "posix",
+    "windows-agent"  = "windows",
+  }
 
-    # CSR attributes
-    "sudo mkdir -p /etc/puppetlabs/puppet",
-    "sudo tee /etc/puppetlabs/puppet/csr_attributes.yaml << YAML",
-    "extension_requests:",
-    "  pp_role: '${var.pp_role}'",
-    "YAML",
-  ]
+  os_type = "${local.os_types[var.node_type]}"
 
-  node_provisioners = {
+  pre_provisioners = {
+    "posix" = [
+      # Hostname and /etc/hosts
+      "sudo hostname ${local.hostname}",
+      "echo $(curl -s http://169.254.169.254/latest/meta-data/local-ipv4) ${local.fqdn} ${local.hostname} | sudo tee -a /etc/hosts",
+
+      # CSR attributes
+      "sudo mkdir -p /etc/puppetlabs/puppet",
+      "sudo tee /etc/puppetlabs/puppet/csr_attributes.yaml << YAML",
+      "extension_requests:",
+      "  pp_role: '${var.pp_role}'",
+      "YAML",
+    ],
+
+    "windows" = [
+      # Set hostname
+      "netdom renamecomputer $env:COMPUTERNAME /newname:${local.hostname} /force",
+      "netdom computername $env:COMPUTERNAME /add:\"${local.fqdn}\"",
+
+      # CSR attributes
+      "(",
+      "    echo extension_requests:",
+      "    echo   pp_role: '${var.pp_role}'",
+      ") > %PROGRAMDATA%\\PuppetLabs\\puppet\\etc\\csr_attributes.yaml",
+    ],
+  }
+
+  puppet_provisioners = {
     "puppet-master" = [
       # Autosign nodes from domain
       "echo '*.${var.domain}' | sudo tee /etc/puppetlabs/puppet/autosign.conf",
@@ -45,14 +68,31 @@ locals {
       "echo '${var.master_ip} ${local.master_fqdn} ${var.master_hostname}' | sudo tee -a /etc/hosts",
       "curl -k 'https://${local.master_fqdn}:8140/packages/current/install.bash' | sudo bash",
     ],
+
+    "windows-agent" = [
+      "echo ${var.master_ip} ${local.master_fqdn} ${var.master_hostname} >> %windir%\\System32\\drivers\\etc\\hosts",
+      "powershell -NoProfile -Command [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; ^",
+      "                               $webClient = New-Object System.Net.WebClient; ^",
+      "                               $webClient.DownloadFile('https://<MASTER HOSTNAME>:8140/packages/current/install.ps1', 'install.ps1'); ^",
+      "                               .\\install.ps1",
+    ],
   }
 
-  node_provisioner = "${local.node_provisioners[var.node_type]}"
 
-  post_provisioner = [
-    # Run Puppet a few times to finalise installation
-    "until sudo /opt/puppetlabs/bin/puppet agent -t; do sleep 1; done",
-  ]
+  post_provisioners = {
+    "posix" = [
+      # Run Puppet a few times to finalise installation
+      "until sudo /opt/puppetlabs/bin/puppet agent -t; do sleep 1; done",
+    ],
 
-  all_provisioners = "${concat(local.pre_provisioner, local.node_provisioner, var.custom_provisioner, local.post_provisioner)}"
+    "windows" = [
+      "powershell -NoProfile -Command do { puppet agent -t } while ( $LASTEXITCODE -ne 0 )",
+    ],
+  }
+
+  pre_provisioner    = "${local.pre_provisioners[local.os_type]}"
+  puppet_provisioner = "${local.puppet_provisioners[var.node_type]}"
+  post_provisioner   = "${local.post_provisioners[local.os_type]}"
+
+  all_provisioners = "${concat(local.pre_provisioner, local.puppet_provisioner, var.custom_provisioner, local.post_provisioner)}"
 }

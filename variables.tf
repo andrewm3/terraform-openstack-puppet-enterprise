@@ -59,7 +59,7 @@ variable "pp_role" {
 }
 
 variable "node_type" {
-  description = "The type of node being created - see provisioners.tf for more details."
+  description = "The type of node being created - one of 'puppet-master', 'puppet-compile', 'posix-agent' or 'windows-agent'"
   default     = "puppet-master"
 }
 
@@ -100,4 +100,9 @@ variable "master_hostname" {
 variable "dns_alt_names" {
   description = "Set this when creating compile masters."
   default     = "puppet-master.openstack.vm"
+}
+
+variable "windows_admin_password" {
+  description = "The password for the Windows 'Administrator' user"
+  default     = "PuppetLabs1"
 }
