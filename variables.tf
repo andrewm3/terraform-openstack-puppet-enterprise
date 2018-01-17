@@ -14,11 +14,13 @@ variable "key_pair" {
 }
 
 variable "image" {
-  default = "centos_7_x86_64"
+  description = "The OpenStack image to use."
+  default     = "centos_7_x86_64"
 }
 
 variable "flavor" {
-  default = "m1.medium"
+  description = "The OpenStack flavour to use."
+  default     = "m1.medium"
 }
 
 variable "network_uuid" {
@@ -26,8 +28,9 @@ variable "network_uuid" {
 }
 
 variable "security_groups" {
-  type    = "list"
-  default = [ "sg0" ]
+  description = "An array of security groups to assign to the instance."
+  type        = "list"
+  default     = [ "sg0" ]
 }
 
 variable "floating_ip" {
@@ -41,19 +44,23 @@ variable "pool" {
 }
 
 variable "ssh_user_name" {
-  default = "centos"
+  description = "The username of the SSH user - set to the default user for the image used."
+  default     = "centos"
 }
 
 variable "ssh_key_file" {
-  default = "~/.ssh/id_rsa.terraform"
+  description = "The location of the SSH private key to use."
+  default     = "~/.ssh/id_rsa.terraform"
 }
 
 variable "pp_role" {
-  default = "puppet::master_of_masters"
+  description = "The value of the pp_role trusted CSR extension, if any."
+  default     = ""
 }
 
 variable "node_type" {
-  default = "puppet-master"
+  description = "The type of node being created - see provisioners.tf for more details."
+  default     = "puppet-master"
 }
 
 variable "pe_source_url" {
@@ -81,14 +88,16 @@ variable "custom_provisioner" {
 }
 
 variable "master_ip" {
-  default = ""
+  description = "The IP of the Puppet master for agents to connect to."
+  default     = ""
 }
 
 variable "master_hostname" {
-  default = "puppet-master"
+  description = "The hostname of the Puppet master for agents to connect to."
+  default     = "puppet-master"
 }
 
 variable "dns_alt_names" {
-  default = "puppet-master.openstack.vm"
+  description = "Set this when creating compile masters."
+  default     = "puppet-master.openstack.vm"
 }
-
