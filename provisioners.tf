@@ -26,11 +26,11 @@ locals {
     ],
 
     "windows" = [
-      # Set hostname
-      "netdom renamecomputer $env:COMPUTERNAME /newname:${local.hostname} /force",
-      "netdom computername $env:COMPUTERNAME /add:\"${local.fqdn}\"",
+      # Set FQDN
+      "netdom computername %computername% /add:${local.fqdn}",
 
       # CSR attributes
+      "mkdir %PROGRAMDATA%\\PuppetLabs\\puppet\\etc",
       "(",
       "    echo extension_requests:",
       "    echo   pp_role: '${var.pp_role}'",
@@ -73,8 +73,8 @@ locals {
       "echo ${var.master_ip} ${local.master_fqdn} ${var.master_hostname} >> %windir%\\System32\\drivers\\etc\\hosts",
       "powershell -NoProfile -Command [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; ^",
       "                               $webClient = New-Object System.Net.WebClient; ^",
-      "                               $webClient.DownloadFile('https://<MASTER HOSTNAME>:8140/packages/current/install.ps1', 'install.ps1'); ^",
-      "                               .\\install.ps1",
+      "                               $webClient.DownloadFile('https://${local.master_fqdn}:8140/packages/current/install.ps1', 'install.ps1'); ^",
+      "                               .\\install.ps1 agent:certname=${local.fqdn}",
     ],
   }
 
@@ -86,7 +86,7 @@ locals {
     ],
 
     "windows" = [
-      "powershell -NoProfile -Command do { puppet agent -t } while ( $LASTEXITCODE -ne 0 )",
+      "powershell -NoProfile -Command \"do { & $env:programfiles'\\puppet labs\\puppet\\bin\\puppet' agent -t; sleep 1 } while ( $LASTEXITCODE -ne 0 )\"",
     ],
   }
 
