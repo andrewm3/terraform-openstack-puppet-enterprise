@@ -6,8 +6,8 @@ locals {
 
 # SSH/WinRM connection details
 locals {
-  host            = "${openstack_compute_floatingip_v2.node.address}"
   connection_type = "${local.os_type == "windows" ? "winrm" : "ssh"}"
+  host            = "${openstack_compute_floatingip_v2.node.address}"
   user            = "${local.os_type == "windows" ? "Administrator" : var.ssh_user_name}"
   password        = "${local.os_type == "windows" ? var.windows_admin_password : "" }"
   private_key     = "${file(var.ssh_key_file)}"
@@ -41,6 +41,7 @@ resource "openstack_compute_floatingip_associate_v2" "node" {
       type        = "${local.connection_type}"
       host        = "${local.host}"
       user        = "${local.user}"
+      password    = "${local.password}"
       private_key = "${local.private_key}"
     }
 
