@@ -14,5 +14,5 @@ EOF
 
   posix_user_data = ""
 
-  user_data = "${var.node_type == "windows-agent" ? local.windows_user_data : local.posix_user_data }"
+  user_data = "${local.os_type == "windows" ? local.windows_user_data : local.posix_user_data }"
 }
