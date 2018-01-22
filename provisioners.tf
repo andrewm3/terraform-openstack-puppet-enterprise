@@ -75,7 +75,7 @@ locals {
       "powershell -NoProfile -Command [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; ^",
       "                               $webClient = New-Object System.Net.WebClient; ^",
       "                               $webClient.DownloadFile('https://${local.master_fqdn}:8140/packages/current/install.ps1', 'install.ps1'); ^",
-      "                               .\\install.ps1 main:certname=${local.fqdn}",
+      "                               .\\install.ps1 main:certname=${local.fqdn} -PuppetServiceEnsure stopped -PuppetServiceEnable false",
     ],
   }
 
