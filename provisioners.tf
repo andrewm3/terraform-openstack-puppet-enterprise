@@ -1,6 +1,7 @@
 # Provisioners
 locals {
-  master_fqdn = "${var.master_hostname}.${var.domain}"
+  master_domain = "${var.master_domain == "" ? var.domain : var.master_domain}"
+  master_fqdn   = "${var.master_hostname}.${local.master_domain}"
 
   os_types = {
     "puppet-master"  = "posix",

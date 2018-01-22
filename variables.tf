@@ -102,6 +102,11 @@ variable "master_hostname" {
   default     = "puppet-master"
 }
 
+variable "master_domain" {
+  description = "The domain of the Puppet master for agents to connect to. Defaults to domain"
+  default     = ""
+}
+
 variable "dns_alt_names" {
   description = "Set this when creating compile masters."
   default     = "puppet-master.openstack.vm"
