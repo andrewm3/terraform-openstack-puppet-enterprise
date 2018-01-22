@@ -1,6 +1,11 @@
 variable "name" {
-  description = "The host name of the instance."
+  description = "The name of the instance in OpenStack."
   default     = "puppet-master"
+}
+
+variable "hostname" {
+  description = "The hostname of the instance - defaults to the name."
+  default     = ""
 }
 
 variable "domain" {

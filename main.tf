@@ -1,6 +1,6 @@
 # Node properties
 locals {
-  hostname = "${openstack_compute_instance_v2.node.name}"
+  hostname = "${var.hostname == "" ? var.name : var.hostname}"
   fqdn     = "${local.hostname}.${var.domain}"
 }
 
