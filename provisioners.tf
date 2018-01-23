@@ -88,11 +88,13 @@ locals {
 
     "windows" = [
       # Run Puppet a few times to finalise installation
-      "powershell -NoProfile -Command \"do { & $env:programfiles'\\puppet labs\\puppet\\bin\\puppet' agent -t; sleep 1 } while ( $LASTEXITCODE -ne 0 )\"",
+      "powershell -NoProfile -Command \"$t = 1; do { & $env:programfiles'\\puppet labs\\puppet\\bin\\puppet' agent -t; sleep 1; $t++ } while ( ($LASTEXITCODE -ne 0) -and ($t -le 10) )\"",
 
       # Re-enable Puppet service after disable above to avoid race condition
       "sc config puppet start= auto",
-      "sc start puppet",
+
+      # Reboot because Windows always needs reboots
+      "shutdown /r /t 0",
     ],
   }
 
