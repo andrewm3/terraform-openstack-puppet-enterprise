@@ -62,12 +62,12 @@ locals {
 
     "compile-master" = [
       "echo '${var.master_ip} ${local.master_fqdn} ${var.master_hostname}' | sudo tee -a /etc/hosts",
-      "curl -k 'https://${local.master_fqdn}:8140/packages/current/install.bash' | sudo bash -s main:dns_alt_names=${var.dns_alt_names}",
+      "curl -k 'https://${local.master_fqdn}:8140/packages/current/install.bash' | sudo bash -s main:dns_alt_names=${var.dns_alt_names} -- --puppet-service-ensure stopped",
     ]
 
     "posix-agent" = [
       "echo '${var.master_ip} ${local.master_fqdn} ${var.master_hostname}' | sudo tee -a /etc/hosts",
-      "curl -k 'https://${local.master_fqdn}:8140/packages/current/install.bash' | sudo bash",
+      "curl -k 'https://${local.master_fqdn}:8140/packages/current/install.bash' | sudo bash -s -- --puppet-service-ensure stopped",
     ],
 
     "windows-agent" = [
@@ -84,6 +84,9 @@ locals {
     "posix" = [
       # Run Puppet a few times to finalise installation
       "until sudo /opt/puppetlabs/bin/puppet agent -t; do sleep 1; done",
+
+      # Start the Puppet service
+      "sudo service puppet start",
     ],
 
     "windows" = [
