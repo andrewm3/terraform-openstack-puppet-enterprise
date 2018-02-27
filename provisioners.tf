@@ -54,7 +54,7 @@ locals {
       "cat > pe.conf <<-EOF",
       "${var.pe_conf}",
       "EOF",
-      "sudo ./puppet-enterprise-*-el-7-x86_64/puppet-enterprise-installer -c pe.conf",
+      "sudo ./puppet-enterprise-*/puppet-enterprise-installer -c pe.conf",
 
       # Run Puppet a few times to finalise installation
       "until sudo /opt/puppetlabs/bin/puppet agent -t; do sleep 1; done",
