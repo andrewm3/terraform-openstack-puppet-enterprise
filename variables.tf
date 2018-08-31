@@ -35,7 +35,7 @@ variable "network_uuid" {
 variable "security_groups" {
   description = "An array of security groups to assign to the instance."
   type        = "list"
-  default     = [ "sg0" ]
+  default     = [ "default" ]
 }
 
 variable "floating_ip" {
