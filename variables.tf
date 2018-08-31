@@ -28,6 +28,11 @@ variable "flavor" {
   default     = "m1.medium"
 }
 
+variable "volume_size" {
+  description = "The size of the volume to create for the instance."
+  default     = 1
+}
+
 variable "network_uuid" {
   description = "The network UUID to place the instance in."
 }
