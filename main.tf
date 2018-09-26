@@ -7,7 +7,7 @@ locals {
 # SSH/WinRM connection details
 locals {
   connection_type = "${local.os_type == "windows" ? "winrm" : "ssh"}"
-  host            = "${openstack_compute_floatingip_v2.node.address}"
+  host            = "${openstack_networking_floatingip_v2.node.address}"
   user            = "${local.os_type == "windows" ? "Administrator" : var.ssh_user_name}"
   password        = "${local.os_type == "windows" ? var.windows_admin_password : "" }"
   private_key     = "${file(var.ssh_key_file)}"
@@ -18,7 +18,7 @@ data "openstack_images_image_v2" "node" {
   most_recent = true
 }
 
-resource "openstack_compute_floatingip_v2" "node" {
+resource "openstack_networking_floatingip_v2" "node" {
   count = "${var.floating_ip}"
   pool  = "${var.pool}"
 }
@@ -47,7 +47,7 @@ resource "openstack_compute_instance_v2" "node" {
 
 resource "openstack_compute_floatingip_associate_v2" "node" {
   count       = "${var.floating_ip}"
-  floating_ip = "${openstack_compute_floatingip_v2.node.address}"
+  floating_ip = "${openstack_networking_floatingip_v2.node.address}"
   instance_id = "${openstack_compute_instance_v2.node.id}"
   fixed_ip    = "${openstack_compute_instance_v2.node.access_ip_v4}"
 
