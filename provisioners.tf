@@ -45,10 +45,7 @@ locals {
       "echo '*.${var.domain}' | sudo tee /etc/puppetlabs/puppet/autosign.conf",
 
       # Download the Puppet Enterprise installer
-      "while : ; do",
-      "  until curl --max-time 300 -o pe-installer.tar.gz \"${var.pe_source_url}\"; do sleep 1; done",
-      "  tar -xzf pe-installer.tar.gz && break",
-      "done",
+      "curl --progress-bar --max-time 300 -o pe-installer.tar.gz \"${var.pe_source_url}\" && tar -xzf pe-installer.tar.gz",
 
       # Install Puppet enterprise
       "cat > pe.conf <<-EOF",
